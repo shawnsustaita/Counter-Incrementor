@@ -86,15 +86,16 @@ int main(int argc, char *argv[]) {
 
 			// Increment counter iteration times
 			for (int i = 0; i < iterations; i++) {
-				acquire_lock();
-				increment_counter();  // Critical locking IO region
 				if (lock_delay > 0) {  // Hold lock to test NFSv4 lock leases
 #ifdef DEBUG
-					cout << "Holding lock for " << lock_delay << " second";
+					cout << "PID " << getpid() << " is holding lock for ";
+					cout << lock_delay << " second";
 					cout << ((lock_delay > 1) ? "s" : "") << endl;
 #endif
 					sleep(lock_delay);
 				}
+				acquire_lock();
+				increment_counter();  // Critical locking IO region
 				release_lock();
 			}
 
@@ -139,7 +140,7 @@ void read_counter() {
 		exit(EXIT_FAILURE);
 	}
 #ifdef DEBUG
-	cout << "READ: " << counter << endl;
+	cout << "PID " << getpid() << " READ: " << counter << endl;
 #endif
 }
 
@@ -151,7 +152,7 @@ void write_counter() {
 		exit(EXIT_FAILURE);
 	}
 #ifdef DEBUG
-	cout << "WROTE: " << counter << endl;
+	cout << "PID " << getpid() << " WROTE: " << counter << endl;
 #endif
 }
 
