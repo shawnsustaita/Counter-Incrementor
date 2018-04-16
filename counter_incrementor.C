@@ -82,10 +82,17 @@ int main(int argc, char *argv[]) {
 		pid_t pid = fork();
 
 		if (pid == 0) {  // Child
-			sleep(fork_delay);  // Allow time to spawn all children
+			if (fork_delay > 0) {
+#ifdef DEBUG
+				cout << "PID " << getpid() << " is sleeping for " << fork_delay;
+				cout << " second" << ((fork_delay > 1) ? "s" : "") << endl;
+#endif
+				sleep(fork_delay);  // Allow time to spawn all children
+			}
 
 			// Increment counter iteration times
 			for (int i = 0; i < iterations; i++) {
+				acquire_lock();
 				if (lock_delay > 0) {  // Hold lock to test NFSv4 lock leases
 #ifdef DEBUG
 					cout << "PID " << getpid() << " is holding lock for ";
@@ -94,7 +101,6 @@ int main(int argc, char *argv[]) {
 #endif
 					sleep(lock_delay);
 				}
-				acquire_lock();
 				increment_counter();  // Critical locking IO region
 				release_lock();
 			}
